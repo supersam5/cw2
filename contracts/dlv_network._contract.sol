@@ -1,14 +1,21 @@
 //SPDX-License-Identifier:MIT
 pragma solidity ^0.8.0;
 
-contract members{
+contract DLV_Network{
     mapping(address => bool) public membership;
+    mapping(address => bool) public isMerchant;
+    mapping(address => bool) public isDriver;
     mapping(address => uint) public membershipExpires;
-    uint constant  MEMBERSHIP_FEE = 1 ether;
+    uint constant  MEMBERSHIP_FEE_VEHICLE = 1 ether;
+    uint constant  MEMBERSHIP_FEE_DRIVER = 50000000000 wei;
+    uint constant  MEMBERSHIP_FEE_MERCHANT = 250000000 wei;
     uint constant  YEAR = 31536000; //365 * 24 * 60 * 60;
+    uint constant  DELIVERY_DEADLINE= 86400; //1 day in seconds
     address payable public  owner;
     address payable contractAccount;
+    
     bool reentrancyGuard=true;
+    enum DeliveryStatus { OrderPlaced, InTransit, Delivered }
     
     event display(address _to, address _from, uint amount, string fn);
 
@@ -45,26 +52,53 @@ contract members{
 */
     function payFees() public payable{
         //check msg.value == membership fee
-        require(msg.value ==  ______________, "Incorrect membership fee: amount due ");
+        require(msg.value == MEMBERSHIP_FEE, "Incorrect membership fee: amount due ");
         address _member = msg.sender;
         //check membership is invalid
-        require(_________________[_member] _ block.timestamp, "Membership not expired");
+        require(membershipExpires[_member] _ block.timestamp, "Membership not expired");
         //check sufficient funds in account
-        require(_member._______ > ______________, "Insufficient funds");
+        require(_member.balance > MEMBERSHIP_FEE, "Insufficient funds");
         //send the amount and update membership
-        (membership[_member], ) = contractAccount.____{value: msg._____}("");
+        (membership[_member], ) = contractAccount.call{value: msg.value}("");
         //check it has been paid
-        require(__________[_member], "Membership: Transferred failed");
+        require(membership[_member], "Membership: Transferred failed");
         //update new expiry time + 1 year
-        _________________[_member] = block.timestamp + ____;
+        membershipExpires[_member] = block.timestamp + YEAR;
     }
 
-    function collect(uint _amount) public payable _________{
+    function collect(uint _amount) public payable ownerOnly{
         require(reentrancyGuard);
-        reentrancyGuard=_____;
-        (bool sent, ) = _____.call{_____: _______}("");
-        reentrancyGuard=____;
+        reentrancyGuard=false;
+        (bool sent, ) = owner.call{value: amount}("");
+        reentrancyGuard=true;
         require(sent, "Not collected");
+    }
+
+    function register(address _memberAddress) public payable{
+
+    } 
+
+    function buyToken(address _memberAddress) public payable{
+
+    }
+
+    function orderItem(address _memberAddress,uint8 itemId) public payable purchaserOnly{
+
+    }
+    function acceptOrder(address _memberAddress,uint8 itemid) public payable merchantOnly{
+
+    }
+    function dispatchItem(address _memberAddress,uint8 itemid) public payable merchantOnly{
+
+    }
+    function reportDelivery(address _memberAddress,uint8 itemid) public payable driverOnly{
+
+    }
+    function verifyDelivery(uint8 deliveryTime) contractOnly{
+
+    }
+    function payDeliveryfee(address _driverAddress, uint8 itemid) public payable contractOnly{
+        
     }
 }
 

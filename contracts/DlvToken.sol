@@ -18,12 +18,12 @@ contract owned {
 
     modifier onlyOwner {
         require(msg.sender == owner);
-        _;
+    _;
     }
 
     modifier onlyAdmin() {
         require(admins[msg.sender] == true);
-            _;
+        _;
     }
 
     function transferOwnership(address newOwner) onlyOwner public {
