@@ -55,7 +55,7 @@ contract DLV_Network{
         require(msg.value == MEMBERSHIP_FEE, "Incorrect membership fee: amount due ");
         address _member = msg.sender;
         //check membership is invalid
-        require(membershipExpires[_member] _ block.timestamp, "Membership not expired");
+        require(membershipExpires[_member] > block.timestamp, "Membership not expired");
         //check sufficient funds in account
         require(_member.balance > MEMBERSHIP_FEE, "Insufficient funds");
         //send the amount and update membership
@@ -94,7 +94,7 @@ contract DLV_Network{
     function reportDelivery(address _memberAddress,uint8 itemid) public payable driverOnly{
 
     }
-    function verifyDelivery(uint8 deliveryTime) contractOnly{
+    function verifyDelivery(uint8 deliveryTime) contractOnly public{
 
     }
     function payDeliveryfee(address _driverAddress, uint8 itemid) public payable contractOnly{
