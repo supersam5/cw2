@@ -11,14 +11,14 @@ contract DLV_Network{
     mapping(address=> bool) public isPurchaser;
     mapping(address => uint) public membershipExpires;
     mapping(uint16 => uint128) public item_prices;
-    uint64 constant  MEMBERSHIP_FEE_DRIVER =  1 ether;
-    uint64 constant  MEMBERSHIP_FEE_MERCHANT =  2 ether;
+    uint64 constant  MEMBERSHIP_FEE_DRIVER =  500;
+    uint64 constant  MEMBERSHIP_FEE_MERCHANT =  1000;
     uint constant  YEAR = 31536000; //365 * 24 * 60 * 60;
     uint constant  DELIVERY_DEADLINE= 86400; //1 day in seconds
     address payable public  owner;
     address payable contractAccount;
     DLVToken token;
-    uint128 price_per_token = 20000000000000000 wei;
+    uint128 price_per_token = 20000000000 wei;
     ItemForDelivery[10000]  items;
     address[50] drivers;
 
