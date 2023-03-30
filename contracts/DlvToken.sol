@@ -1,17 +1,20 @@
-pragma solidity ^0.5.2;
+//SPDX-License-Identifier:MIT
+pragma solidity ^0.8.0;
+
 /**
  *@notice The DlvToken implements the ERC20 token
  *@author brian wu
- *@modifications ian mitchell
+ *@modifications ian mitchell, Samuel Egemba, Ngunan Jiki
  */ 
 
 /**
  * define owner, transfer owner and assign admin
  */
-contract owned {
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+contract owned  {
     address public owner;
     mapping(address => bool) admins;
-    constructor () internal {
+    constructor (){
         owner = msg.sender;
         admins[msg.sender] = true;
     }
@@ -72,7 +75,7 @@ contract Pausable is owned {
     event PausedEvt(address account);
     event UnpausedEvt(address account);
     bool private paused;
-    constructor () internal {
+    constructor ()  {
         paused = false;
     }
 
@@ -100,25 +103,8 @@ contract Pausable is owned {
 /**
  *Interface for ERC20
  */
-interface ERC20 {
-    function transfer(address to, uint256 value) external returns (bool);
 
-    function approve(address spender, uint256 value) external returns (bool);
-
-    function transferFrom(address from, address to, uint256 value) external returns (bool);
-
-    function totalSupply() external view returns (uint256);
-
-    function balanceOf(address who) external view returns (uint256);
-
-    function allowance(address owner, address spender) external view returns (uint256);
-
-    event Transfer(address indexed from, address indexed to, uint256 value);
-
-    event Approval(address indexed owner, address indexed spender, uint256 value);
-}
-
-contract MyERC20Token is ERC20, AllowList, Pausable {
+contract DLVToken is ERC20, AllowList, Pausable {
     TokenSummary public tokenSummary;
     mapping(address => uint256) internal balances;
     mapping (address => mapping (address => uint256)) internal allowed;
@@ -127,8 +113,7 @@ contract MyERC20Token is ERC20, AllowList, Pausable {
     string public constant SUCCESS_MESSAGE = "SUCCESS";
     uint8 public constant DENY_LIST_CODE = 1;
     string public constant DENY_LIST_ERROR = "ILLEGAL_TRANSFER_TO_DENY_LISTED_ADDRESS";
-    event Transfer(address indexed from, address indexed to, uint256 value);
-    event Approval(address indexed owner, address indexed spender, uint256 value);
+    
     event Burn(address from, uint256 value);
     struct TokenSummary {
         address initialAccount;
@@ -136,12 +121,11 @@ contract MyERC20Token is ERC20, AllowList, Pausable {
         string symbol;
     }
 
-    constructor(string memory _name, string memory  _symbol, 
-    address initialAccount, uint initialBalance) public payable {
+    constructor(string memory name_, string memory symbol_, address initialAccount, uint initialBalance) payable ERC20(name_,  symbol_)  {
         addAllowList(initialAccount);
         balances[initialAccount] = initialBalance;
         _totalSupply = initialBalance;
-        tokenSummary = TokenSummary(initialAccount, _name, _symbol);
+        tokenSummary = TokenSummary(initialAccount, name_, symbol_);
     }
 
     modifier verify (address from, address to, uint256 value) {
@@ -166,15 +150,15 @@ contract MyERC20Token is ERC20, AllowList, Pausable {
         }
     }
 
-    function totalSupply() public view returns (uint256) {
+    function totalSupply() public override view returns (uint256) {
        return _totalSupply;
     }
 
-    function balanceOf(address account) public view returns (uint256) {
+    function balanceOf(address account) public override view returns (uint256) {
       return balances[account];
     }
 
-    function transfer (address to, uint256 value) public verify(msg.sender, to, value)
+    function transfer (address to, uint256 value) public override verify(msg.sender, to, value)
     whenNotPaused  returns (bool success) {
         require(to != address(0) && balances[msg.sender]> value);
         balances[msg.sender] = balances[msg.sender] - value;
@@ -183,7 +167,7 @@ contract MyERC20Token is ERC20, AllowList, Pausable {
         return true;
     }
 
-    function transferFrom(address from, address spender,uint256 value) public verify(from, spender, value) whenNotPaused returns (bool) {
+    function transferFrom(address from, address spender,uint256 value) public override verify(from, spender, value) whenNotPaused returns (bool) {
         require(spender != address(0) && value <= balances[from] && value <= allowed[from][msg.sender]);
         balances[from] = balances[from] - value;
         balances[spender] = balances[spender] + value;
@@ -192,11 +176,11 @@ contract MyERC20Token is ERC20, AllowList, Pausable {
         return true;
   	}
 
-	function allowance(address owner,address spender) public view returns (uint256) {
+	function allowance(address owner,address spender) public override view returns (uint256) {
    		return allowed[owner][spender];
  	}
 
-	function approve(address spender, uint256 value) public returns (bool) {
+	function approve(address spender, uint256 value) public override returns (bool) {
         require(spender != address(0));
         allowed[msg.sender][spender] = value;
         emit Approval(msg.sender, spender, value);
@@ -219,8 +203,6 @@ contract MyERC20Token is ERC20, AllowList, Pausable {
 		return true;
   	}
 
-	function ()  external payable {
-    	revert();  
-	}
+	fallback ()  external payable {	revert();  }
 
 }

@@ -1,0 +1,68 @@
+.order-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.status-circle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #ccc;
+  border: 2px solid #fff;
+  margin-right: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.status-item.active .status-circle {
+  background-color: #ff0000;
+  border-color: #ff0000;
+}
+
+.status-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+.status-line {
+  width: 2px;
+  height: 100%;
+  background-color: #ccc;
+  position: absolute;
+  top: 0;
+  left: 8px;
+  z-index: 0;
+}
+
+.status-line:before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ccc;
+  position: absolute;
+  top: -6px;
+  left: -4px;
+  z-index: 1;
+}
+
+.status-line:after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ccc;
+  position: absolute;
+  bottom: -6px;
+  left: -4px;
+  z-index: 1;
+}

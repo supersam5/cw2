@@ -1,10 +1,11 @@
 import '../App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import OrderTracking from './orderstatus';
 
 function StatusBoard() {
   return (
     <div className="Home">
-      <h2>Status Area</h2>
+      <OrderTracking/>
     </div>
   );
 }
