@@ -101,7 +101,7 @@ contract Pausable is owned {
 }
 
 /**
- *Interface for ERC20
+ERC20
  */
 
 contract DLVToken is ERC20, AllowList, Pausable {
@@ -168,7 +168,10 @@ contract DLVToken is ERC20, AllowList, Pausable {
     }
 
     function transferFrom(address from, address spender,uint256 value) public override verify(from, spender, value) whenNotPaused returns (bool) {
-        require(spender != address(0) && value <= balances[from] && value <= allowed[from][msg.sender]);
+        require(spender != address(0),"Paying address is null");
+        require(value <= balances[from],"Insufficient Token Balance");
+        require(value <= allowed[from][msg.sender],"Please approve required ammount");
+
         balances[from] = balances[from] - value;
         balances[spender] = balances[spender] + value;
         allowed[from][msg.sender] = allowed[from][msg.sender] - value;

@@ -1,0 +1,5 @@
+const raffle = artifacts.require("raffle");
+
+module.exports = function (deployer) {
+  deployer.deploy(raffle);
+};
