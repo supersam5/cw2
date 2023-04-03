@@ -1,0 +1,45 @@
+//SPDX-License-Identifier:MIT
+pragma solidity ^0.8.0;
+
+import "./DlvToken.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeCast.sol";
+import "./dlv_network_contract.sol";
+
+
+
+contract init{
+
+    constructor(DLV_Network net,address merchant1, address merchant2, address driver1, address driver2) public {
+        function init(address merchant1, address merchant2, address driver1, address driver2) public {
+        
+        address _dummmyAddress;
+        DeliveryStatus _dummyStatus;
+
+        //instantiate two drivers and two merchants
+        membershipExpires[merchant1] = block.timestamp + YEAR;
+        membershipExpires[merchant2] = block.timestamp + YEAR;
+        isMerchant[merchant1] = true;
+        membership[merchant1] = true; 
+        isMerchant[merchant2] = true;
+        membership[merchant1] = true; 
+
+        membershipExpires[driver1] = block.timestamp + YEAR;
+        membershipExpires[driver2] = block.timestamp + YEAR;
+        isDriver[driver1] = true;
+        membership[driver1] = true; 
+        isDriver[driver2] = true;
+        membership[driver2] = true; 
+        
+        //instantiate products for delivery
+        items[0] = ItemForDelivery("item 1",_dummyStatus,_dummmyAddress,merchant1,_dummmyAddress,0);
+        items[1] = ItemForDelivery("item 2",_dummyStatus,_dummmyAddress,merchant1,_dummmyAddress,0);
+        items[2] = ItemForDelivery("item 3",_dummyStatus,_dummmyAddress,merchant1,_dummmyAddress,0);
+        items[3] = ItemForDelivery("item 4",_dummyStatus,_dummmyAddress,merchant2,_dummmyAddress,0);
+        items[4] = ItemForDelivery("item 5",_dummyStatus,_dummmyAddress,merchant2,_dummmyAddress,0);
+        items[5] = ItemForDelivery("item 6",_dummyStatus,_dummmyAddress,merchant2,_dummmyAddress,0);
+        
+
+
+
+}

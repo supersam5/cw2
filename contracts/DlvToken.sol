@@ -10,7 +10,8 @@ pragma solidity ^0.8.0;
 /**
  * define owner, transfer owner and assign admin
  */
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 contract owned  {
     address public owner;
     mapping(address => bool) admins;
@@ -104,8 +105,10 @@ contract Pausable is owned {
 ERC20
  */
 
-contract DLVToken is ERC20, AllowList, Pausable {
+contract DLVToken is IERC20, AllowList, Pausable {
+    
     TokenSummary public tokenSummary;
+
     mapping(address => uint256) internal balances;
     mapping (address => mapping (address => uint256)) internal allowed;
     uint256 internal _totalSupply;
@@ -121,7 +124,7 @@ contract DLVToken is ERC20, AllowList, Pausable {
         string symbol;
     }
 
-    constructor(string memory name_, string memory symbol_, address initialAccount, uint initialBalance) payable ERC20(name_,  symbol_)  {
+    constructor(string memory name_, string memory symbol_, address initialAccount, uint initialBalance) payable {
         addAllowList(initialAccount);
         balances[initialAccount] = initialBalance;
         _totalSupply = initialBalance;
@@ -150,40 +153,54 @@ contract DLVToken is ERC20, AllowList, Pausable {
         }
     }
 
-    function totalSupply() public override view returns (uint256) {
+    function totalSupply() public  view returns (uint256) {
        return _totalSupply;
     }
 
-    function balanceOf(address account) public override view returns (uint256) {
+    function balanceOf(address account) public  view returns (uint256) {
       return balances[account];
     }
 
-    function transfer (address to, uint256 value) public override verify(msg.sender, to, value)
+    function transfer (address to, uint256 value) public  verify(msg.sender, to, value)
     whenNotPaused  returns (bool success) {
         require(to != address(0) && balances[msg.sender]> value);
-        balances[msg.sender] = balances[msg.sender] - value;
+        balances[msg.sender] = balances[msg.sender] + value;
         balances[to] = balances[to] + value;
         emit Transfer(msg.sender, to, value);
         return true;
     }
 
-    function transferFrom(address from, address spender,uint256 value) public override verify(from, spender, value) whenNotPaused returns (bool) {
+    function transferFrom(address from, address spender,uint256 value) public  verify(from, spender, value) whenNotPaused returns (bool) {
         require(spender != address(0),"Paying address is null");
         require(value <= balances[from],"Insufficient Token Balance");
-        require(value <= allowed[from][msg.sender],"Please approve required ammount");
+        require(allowance(from,spender)>=value,"Please approve required ammount");
+        require(value <= balances[from], "Insufficient balance");
+        uint newbal;
+         uint newAll;
+        
+         
+            unchecked {
+            newAll= allowed[from][msg.sender]-value;
+            newbal = balances[from]-value;
+            
+                if(allowed[from][msg.sender]> newAll && balances[from]>newbal){
 
-        balances[from] = balances[from] - value;
+                 balances[from] = newbal;
+                 allowed[from][msg.sender] = newAll;
+            }
+        }
+            
+
         balances[spender] = balances[spender] + value;
-        allowed[from][msg.sender] = allowed[from][msg.sender] - value;
         emit Transfer(from, spender, value);
         return true;
   	}
 
-	function allowance(address owner,address spender) public override view returns (uint256) {
+	function allowance(address owner,address spender) public view returns (uint256) {
    		return allowed[owner][spender];
  	}
 
-	function approve(address spender, uint256 value) public override returns (bool) {
+	function approve(address spender, uint256 value) public  returns (bool) {
         require(spender != address(0));
         allowed[msg.sender][spender] = value;
         emit Approval(msg.sender, spender, value);
@@ -206,6 +223,6 @@ contract DLVToken is ERC20, AllowList, Pausable {
 		return true;
   	}
 
-	fallback ()  external payable {	revert();  }
+	fallback ()  external payable {	revert();  }// return any stray ether
 
 }
