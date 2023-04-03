@@ -170,7 +170,8 @@ contract DLVToken is IERC20, AllowList, Pausable {
         return true;
     }
 
-    function transferFrom(address from, address spender,uint256 value) public  verify(from, spender, value) whenNotPaused returns (bool) {
+    function transferFrom(address from, address spender,uint256 value) public 
+     verify(from, spender, value) whenNotPaused returns (bool) {
         require(spender != address(0),"Paying address is null");
         require(value <= balances[from],"Insufficient Token Balance");
         require(allowance(from,spender)>=value,"Please approve required ammount");
@@ -213,7 +214,7 @@ contract DLVToken is IERC20, AllowList, Pausable {
 		_totalSupply -= value;
 		emit Burn(msg.sender, value);
 		return true;
-	}
+	}  
 	
 	function mint(address account, uint256 value) public whenNotPaused onlyAdmin returns (bool) {
 		require(account != address(0));

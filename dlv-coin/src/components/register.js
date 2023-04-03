@@ -35,17 +35,9 @@ const RegisterForm = () => {
 
   return (
     <div>
-      <h2>Connect your wallet to register</h2>
+      <h2>Connect your wallet to register/login</h2>
       <Form onSubmit={handleSubmit}>
-        <Form.Group>
-          <Form.Label>Name</Form.Label>
-          <Form.Control
-            type="text"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="Enter your name"
-          />
-        </Form.Group>
+        
         <Button variant="primary" onClick={connectToMetamask}>
           Connect Wallet
         </Button>{" "}
