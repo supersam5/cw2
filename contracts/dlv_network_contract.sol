@@ -58,7 +58,7 @@ contract DLV_Network{
     modifier purchaserOnly { require(isPurchaser[msg.sender]== true, "Only customers can perform this action"); _;}
     modifier merchantOnly { require(isMerchant[msg.sender]== true, "Only merchants can perform this action"); _;}
     modifier driverOnly { require(isDriver[msg.sender]== true, "Only merchants can perform this action"); _;}
-    modifier contractOnly {require(msg.sender == contractAccount); _;}
+    modifier contractOnly {require(msg.sender == contractAccount,"Executable only by the contract acct"); _;}
 
     constructor(DLVToken _token) payable  {
         owner = payable(msg.sender);
@@ -152,7 +152,6 @@ contract DLV_Network{
 
     function buyToken(uint32 quantity) external payable{
     
-        reentrancyGuard=false;
         require(quantity <= type(uint32).max, "Quantity exceeds maximum value: 4,000,000,000");
         address _member = msg.sender; 
         uint256 tranx_cost = quantity * price_per_token;
@@ -161,8 +160,7 @@ contract DLV_Network{
         token.mint(_member,quantity);
         emit display(contractAccount,_member,msg.value,"buyToken");
     }
-    
-
+ 
     function orderItem(uint16 itemId, uint256 price) public purchaserOnly{
         require(itemId <= 10000, "ItemId is incorrect");
         ItemForDelivery memory selectedItem = items[itemId];
@@ -214,25 +212,26 @@ contract DLV_Network{
         verifyDelivery(blockTimestamp(), itemId);
         
     }
-    function verifyDelivery(uint256 deliveryTimestamp, uint16 itemId) contractOnly public {
+    function verifyDelivery(uint256 deliveryTimestamp, uint16 itemId) public {
        //assumption of location and actual delivery of item
        ItemForDelivery memory selectedItem = items[itemId]; 
-       uint256 deliveryTime = deliveryTimestamp - selectedItem.dispatchTimestamp;
-       payDriver(selectedItem.driver, itemId, deliveryTime, DELIVERY_DEADLINE);
-       selectedItem.status = DeliveryStatus.OrderReceived;
+       int256 deliveryTime =int(deliveryTimestamp)- int(selectedItem.dispatchTimestamp);
+       selectedItem.status = DeliveryStatus.Delivered;
        items[itemId]= selectedItem;
+       payDriver(selectedItem.driver, itemId, deliveryTime, int(DELIVERY_DEADLINE));
        emit deliveryUpdate(itemId,selectedItem.merchant,selectedItem.recipient,"Order Delivered");
     }
-    function payDriver(address _driverAddress, uint16 itemId, uint256 deliveryTime,uint DEADLINE) public  contractOnly returns(bool){
+    function payDriver(address _driverAddress, uint16 itemId, int256 deliveryTime,int DEADLINE) public   returns(bool){
          bool paid;
          ItemForDelivery memory selectedItem = items[itemId]; 
-         uint256 driver_stipend = (item_prices[itemId]*4)/100;
-         require(selectedItem.status == DeliveryStatus.OrderReceived, "Item must have been delivered");
+         uint256 driver_stipend = (item_prices[itemId].mul(4)).div(100);
+         require(selectedItem.status == DeliveryStatus.Delivered, "Item must have been delivered");
          if(deliveryTime <= DEADLINE){
-           if (paid) token.transfer(_driverAddress,driver_stipend);
-           emit display(contractAccount,_driverAddress,driver_stipend,"payDelivery(DLV)");
+           paid= token.transfer(_driverAddress,driver_stipend);
+           if (paid) emit display(contractAccount,_driverAddress,driver_stipend,"payDelivery(DLV)");
          }else{
-           if (paid) token.transfer(_driverAddress,(driver_stipend*50)/100);
+          paid= token.transfer(_driverAddress,(driver_stipend.mul(50)).div(100));
+            if(paid) emit display(contractAccount,_driverAddress,(driver_stipend.mul(50)).div(100),"payDelivery(DLV)");
          }
          return paid;
     }
